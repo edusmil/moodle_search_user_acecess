@@ -36,7 +36,7 @@ class local_ws_get_user_access_external extends external_api {
         );
     }
 
-    public static function get_user_access_per_period($userid,$start_date,$final_date) {
+    public static function get_user_access_per_period($userid,$startdate,$finaldate) {
         global $USER;
         global $DB;
         global $x;
@@ -58,8 +58,8 @@ class local_ws_get_user_access_external extends external_api {
             throw new moodle_exception('cannotviewprofile');
         }
 
-        $sql = "SELECT u.username, l.action, FROM_UNIXTIME(max(l.timecreated),'%d%m%Y %h:%i:%s') as last_access FROM   mdl_logstore_standard_log l, mdl_user u WHERE  u.id=l.userid and  l.eventname = '\\core\\event\\user_loggedin' " .
-		"	AND FROM_UNIXTIME(l.timecreated, '%Y-%m-%d') BETWEEN STR_TO_DATE('"+$start_date+"','%d%m%Y %h:%i:%s') AND STR_TO_DATE('"+$final_date+"','%d%m%Y %h:%i:%s')  group by u.username, l.action;";
+        $sql = "SELECT u.id, l.action, FROM_UNIXTIME(max(l.timecreated),'%d%m%Y %h:%i:%s') as last_access FROM   mdl_logstore_standard_log l, mdl_user u WHERE  u.id=l.userid and  l.eventname = '\\core\\event\\user_loggedin' " .
+		"	AND FROM_UNIXTIME(l.timecreated, '%Y-%m-%d') BETWEEN STR_TO_DATE('".$startdate."','%d%m%Y %h:%i:%s') AND STR_TO_DATE('".$finaldate."','%d%m%Y %h:%i:%s') and u.id=".$userid."  group by u.username, l.action;";
 
         $results = $DB->get_records_sql($sql);
         return $results;
@@ -76,7 +76,7 @@ class local_ws_get_user_access_external extends external_api {
         return new external_multiple_structure(
                 new external_single_structure(
                 array(
-                    'userid' => new external_value(PARAM_INT, 'userid'),                    
+                    'userid' => new external_value(PARAM_INT, 'id'),                    
                     'action' => new external_value(PARAM_TEXT,'action'),                    
                     'last_access' => new external_value(PARAM_TEXT,'last_access'),
                     )
